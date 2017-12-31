@@ -49,11 +49,17 @@ void clear(String string);
 /* Copies the source to the target and returns 1 if the copy succeded, 0 otherwise */
 int copy(String target, const String source); 
 
-/* Prints the string. If endlFlag is not 0 then newline is printed */
-void printString(String string, int endlFlag);
+/* Prints the string */
+void printString(String string);
+
+/* Prints the string with a new line */
+void printStringEndl(String string);
 
 /* Returns 1 if the string is empty, 0 otherwise */
 int empty(String string);
+
+/* Concatenates two strings. Returns 1 if the concatenation was successful, 0 otherwise */
+int concatenateString(String target, String source);
 
 #endif
 

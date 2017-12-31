@@ -51,28 +51,30 @@ size_t length(const char* string) {
 
 /* Auxiliary function */
 int copyFromCharPtr(String target, const char* source) {
-  size_t targetAllocated = target->allocatedSize;
+  size_t targetAllocatedSize = target->allocatedSize;
   size_t sourceSize = length(source);
-  target->size = sourceSize;
   
-  if (targetAllocated < (sourceSize + 1)) {
+  if (targetAllocatedSize < (sourceSize + 1)) {
     /* I do this because I don't trust realloc completely */
     FREE_AND_SET_NULL(target->container);
 
     target->container = MALLOC(sourceSize + 1, char);
-    target->allocatedSize = sourceSize + 1;
-    targetAllocated = sourceSize + 1;
-    
+
     if (target->container == NULL) {
       return 0;
     }
+
+    target->allocatedSize = sourceSize + 1;
+    targetAllocatedSize = sourceSize + 1;
   }
 
+  target->size = sourceSize;
+  
   for (size_t i = 0U; i != sourceSize; ++i) {
     target->container[i] = source[i];
   }
 
-  for (size_t i = sourceSize; i != targetAllocated; ++i) {
+  for (size_t i = sourceSize; i != targetAllocatedSize; ++i) {
     target->container[i] = '\0';
   }
 
@@ -127,41 +129,83 @@ size_t size(String string) {
 }
 
 int copy(String target, const String source) {
-  size_t targetAllocated = target->allocatedSize;
+  size_t targetAllocatedSize = target->allocatedSize;
   size_t sourceSize = source->size;
-  target->size = sourceSize;
   
-  if (targetAllocated < (sourceSize + 1)) {
+  if (targetAllocatedSize < (sourceSize + 1)) {
     /* I do this because I don't trust realloc completely */
     FREE_AND_SET_NULL(target->container);
   
     target->container = MALLOC(sourceSize + 1, char);
-    target->allocatedSize = sourceSize + 1;
-    targetAllocated = sourceSize + 1;
-    
+
     if (target->container == NULL) {
       return 0;
     }
+
+    target->allocatedSize = sourceSize + 1;
+    targetAllocatedSize = sourceSize + 1;
   }
 
+  target->size = sourceSize;
+  
   for (size_t i = 0U; i != sourceSize; ++i) {
     target->container[i] = source->container[i];
   }
 
-  for (size_t i = sourceSize; i != targetAllocated; ++i) {
+  for (size_t i = sourceSize; i != targetAllocatedSize; ++i) {
     target->container[i] = '\0';
   }
 
   return 1;
 }
 
-void printString(String string, int endlFlag) {
-  printf("%s%s", string->container, (endlFlag) ? "\n" : "");
+void printString(String string) {
+  printf("%s", string->container);
+}
+
+void printStringEndl(String string) {
+  printf("%s\n", string->container);
 }
 
 int empty(String string) {
   return (string->size == 0);
 }
 
-/* String.c ends here */
+int concatenateString(String target, String source) {
+  size_t targetAllocatedSize = target->allocatedSize;
+  size_t targetSize = target->size;
+  size_t sourceSize = source->size;
+  
+  if (targetAllocatedSize < (targetSize + sourceSize + 1)) {
+    String aux = basicString(target->container);
 
+    FREE_AND_SET_NULL(target->container);
+    target->container = MALLOC(targetSize + sourceSize + 1, char);
+
+    if (target->container == NULL) {
+      return 0;
+    }
+
+    target->allocatedSize = targetSize + sourceSize + 1;
+    targetAllocatedSize = targetSize + sourceSize + 1;
+    copy(target, aux);
+    
+    deleteString(aux);
+  }
+
+  target->size += sourceSize;
+
+  size_t j = 0U;
+
+  for (size_t i = targetSize; i != (targetSize + sourceSize); ++i) {
+    target->container[i] = source->container[j++];
+  }
+
+  for (size_t i = sourceSize + targetSize; i != targetAllocatedSize; ++i) {
+    target->container[i] = '\0';
+  }
+
+  return 1;
+}
+
+/* String.c ends here */

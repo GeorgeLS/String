@@ -7,24 +7,28 @@ int main(void) {
   String string = basicString("TESTING OUR STRING");
   String string2 = basicString("SMALL");
 
-  printString(string, 1);
+  printStringEndl(string);
 
-  printString(string2, 1);
+  printStringEndl(string2);
 
+  concatenateString(string, string2);
+
+  printStringEndl(string);
+  
   copy(string, string2);
 
-  printString(string, 1);
+  printStringEndl(string);
 
   String string3 = defaultString();
 
   copy(string3, string);
 
-  printString(string3, 1);
+  printStringEndl(string3);
 
   clear(string);
 
   printf("String is %sempty\n", (empty(string)) ? "" : "not ");
-  printString(string, 0);
+  printString(string);
   
   deleteString(string);
   deleteString(string2);
