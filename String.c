@@ -40,69 +40,54 @@ struct string {
 
 /* Auxiliary function */
 size_t length(const char* string) {
-  size_t length = 0U;
-
+  size_t length = 0U;  
   while(*string++ != '\0') {
     ++length;
   }
-
   return length;
 }
 
 /* Auxiliary function */
 int copyFromCharPtr(String target, const char* source) {
   size_t targetAllocatedSize = target->allocatedSize;
-  size_t sourceSize = length(source);
-  
+  size_t sourceSize = length(source);  
   if (targetAllocatedSize < (sourceSize + 1)) {
     /* I do this because I don't trust realloc completely */
     FREE_AND_SET_NULL(target->container);
-
     target->container = MALLOC(sourceSize + 1, char);
-
     if (target->container == NULL) {
       return 0;
     }
-
     target->allocatedSize = sourceSize + 1;
     targetAllocatedSize = sourceSize + 1;
   }
-
   target->size = sourceSize;
-  
   for (size_t i = 0U; i != sourceSize; ++i) {
     target->container[i] = source[i];
   }
-
   for (size_t i = sourceSize; i != targetAllocatedSize; ++i) {
     target->container[i] = '\0';
   }
-
   return 1;
 }
 
 String defaultString(void) {
   String newString = CALLOC(1, struct string);
-
   return newString;
 }
 
 String basicString(const char* source) {
   String newString = MALLOC(1, struct string);
   size_t sourceLength = length(source);
-
   if (newString == NULL) {
     return NULL;
   }
-
   newString->container = MALLOC(sourceLength + 1, char);
   newString->size = sourceLength;
   newString->allocatedSize = sourceLength + 1;
-
   if (copyFromCharPtr(newString, source) == 0) {
     return NULL;
   }
-  
   return newString;
 }
 
@@ -116,11 +101,9 @@ void clear(String string) {
    * do not set to zero the allocatedSize so we can put a new
    * string in the cleared string later
    */
-
   for (size_t i = 0U; i != string->size; ++i) {
     string->container[i] = '\0';
   }
-
   string->size = 0U;
 }
 
@@ -131,31 +114,23 @@ size_t size(String string) {
 int copy(String target, const String source) {
   size_t targetAllocatedSize = target->allocatedSize;
   size_t sourceSize = source->size;
-  
   if (targetAllocatedSize < (sourceSize + 1)) {
     /* I do this because I don't trust realloc completely */
     FREE_AND_SET_NULL(target->container);
-  
     target->container = MALLOC(sourceSize + 1, char);
-
     if (target->container == NULL) {
       return 0;
     }
-
     target->allocatedSize = sourceSize + 1;
     targetAllocatedSize = sourceSize + 1;
   }
-
-  target->size = sourceSize;
-  
+  target->size = sourceSize;  
   for (size_t i = 0U; i != sourceSize; ++i) {
     target->container[i] = source->container[i];
   }
-
   for (size_t i = sourceSize; i != targetAllocatedSize; ++i) {
     target->container[i] = '\0';
   }
-
   return 1;
 }
 
@@ -175,37 +150,40 @@ int concatenateString(String target, String source) {
   size_t targetAllocatedSize = target->allocatedSize;
   size_t targetSize = target->size;
   size_t sourceSize = source->size;
-  
   if (targetAllocatedSize < (targetSize + sourceSize + 1)) {
     String aux = basicString(target->container);
-
     FREE_AND_SET_NULL(target->container);
     target->container = MALLOC(targetSize + sourceSize + 1, char);
-
     if (target->container == NULL) {
       return 0;
     }
-
     target->allocatedSize = targetSize + sourceSize + 1;
     targetAllocatedSize = targetSize + sourceSize + 1;
-    copy(target, aux);
-    
+    copy(target, aux);    
     deleteString(aux);
   }
-
   target->size += sourceSize;
-
   size_t j = 0U;
-
   for (size_t i = targetSize; i != (targetSize + sourceSize); ++i) {
     target->container[i] = source->container[j++];
   }
-
   for (size_t i = sourceSize + targetSize; i != targetAllocatedSize; ++i) {
     target->container[i] = '\0';
   }
-
   return 1;
+}
+
+int findSubstring(String source, String substring) {
+  for (size_t i = 0U; i <= source->size - substring->size; ++i) {
+    size_t j = i;
+    size_t k = 0U;
+    while (source->container[j++] == substring->container[k]
+	   && substring->container[k++] != '\0') {}
+    if (--k == substring->size) {
+      return 1;
+    }
+  }
+  return 0;
 }
 
 /* String.c ends here */

@@ -61,6 +61,9 @@ int empty(String string);
 /* Concatenates two strings. Returns 1 if the concatenation was successful, 0 otherwise */
 int concatenateString(String target, String source);
 
+/* Searches for the substring in the target. Returns 1 if substring was found, 0 otherwise */
+int findSubstring(String target, String substring);
+
 #endif
 
 /* String.h ends here */
